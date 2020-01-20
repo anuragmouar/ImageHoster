@@ -30,7 +30,7 @@ public class Comment {
     //The 'comment' table is mapped to 'users' table with Many:One mapping
     //One comment can have only one user (owner) but one user can have multiple comments
     //FetchType is EAGER
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     //Below annotation indicates that the name of the column in 'user' table referring the primary key in 'users' table will be 'user_id'
     @JoinColumn(name = "user_id")
     private User user;
@@ -38,7 +38,7 @@ public class Comment {
     //The 'comment' table is mapped to 'image' table with Many:One mapping
     //One comment can have only one image (owner) but one image can have multiple comments
     //FetchType is EAGER
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     //Below annotation indicates that the name of the column in 'images' table referring the primary key in 'image' table will be 'image_id'
     @JoinColumn(name = "image_id")
     private Image image;
