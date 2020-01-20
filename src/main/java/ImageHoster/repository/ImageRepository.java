@@ -1,5 +1,6 @@
 package ImageHoster.repository;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import org.springframework.stereotype.Repository;
 
@@ -107,6 +108,37 @@ public class ImageRepository {
             transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
+        }
+    }
+
+    //The method receives the Comment object to be updated in the database
+    //Creates an instance of EntityManager
+    //Starts a transaction
+    //The transaction is committed if it is successful
+    //The transaction is rolled back in case of unsuccessful transaction
+    public void addImageComment(Comment comment) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+
+        try {
+            transaction.begin();
+            em.merge(comment);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+        }
+    }
+
+    //The method creates an instance of EntityManager
+    //Executes JPQL query to fetch all comments from the database with corresponding image id and title
+    //Returns the list of comments fetched from the database
+    public List<Comment> getImageComments(String imageId, String title) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            TypedQuery<Comment> typedQuery = em.createQuery("SELECT c from Comment c where c.image.title =:title and c.image.id =:imageId", Comment.class).setParameter("title", title).setParameter("imageId", Integer.valueOf(imageId));
+            return typedQuery.getResultList();
+        } catch (NoResultException nre) {
+            return null;
         }
     }
 

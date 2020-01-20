@@ -1,5 +1,6 @@
 package ImageHoster.controller;
 
+import ImageHoster.model.Comment;
 import ImageHoster.model.Image;
 import ImageHoster.model.Tag;
 import ImageHoster.model.User;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -52,6 +54,8 @@ public class ImageController {
         Image image = imageService.getImageByIdAndTitle(imageId, title);
         model.addAttribute("image", image);
         model.addAttribute("tags", image.getTags());
+        //Display all comments associated with this image
+        model.addAttribute("comments", imageService.getImageComments(imageId, title));
         return "images/image";
     }
 
@@ -87,6 +91,35 @@ public class ImageController {
         return "redirect:/images";
     }
 
+    /**
+     * This controller method is called when the request pattern is of type '/image/{imageId}/{imageTitle}/comments' and also the incoming request is of POST type
+     * The method receives all the details of the image along with comments, and now the image will be sent to the business logic to be persisted in the database
+     * LoggedIn user Id and LocalDate.now is added to comment along with image which is fetched from database by imageId and imageTitle. This comment is persisted to database
+     * After storing the comments, this method directs to the logged in user existing image page
+     * @param imageId
+     * @param imageTitle
+     * @param commentText
+     * @param session
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/image/{imageId}/{imageTitle}/comments")
+    public String addImageComment(@PathVariable("imageId") String imageId, @PathVariable("imageTitle") String imageTitle, @RequestParam("comment") String commentText, HttpSession session, Model model) {
+        User user = (User) session.getAttribute("loggeduser");
+        Comment comment = new Comment();
+        comment.setText(commentText);
+        comment.setCreatedDate(LocalDate.now());
+        comment.setUser(user);
+        Image image = imageService.getImageByIdAndTitle(imageId, imageTitle);
+        comment.setImage(image);
+        imageService.addImageComment(comment);
+        model.addAttribute("image", image);
+        model.addAttribute("tags", image.getTags());
+        //Display all comments associated with this image
+        model.addAttribute("comments", imageService.getImageComments(imageId, imageTitle));
+        return "/images/image";
+    }
+
     //This controller method is called when the request pattern is of type 'editImage'
     //This method fetches the image with the corresponding id from the database and adds it to the model with the key as 'image'
     //The method then returns 'images/edit.html' file wherein you fill all the updated details of the image
@@ -109,6 +142,8 @@ public class ImageController {
             model.addAttribute("tags", tags);
             return "images/edit";
         }
+        //Display all comments associated with this image
+        model.addAttribute("comments", imageService.getImageComments(Integer.toString(imageId), image.getTitle()));
         return "images/image";
     }
 
@@ -164,6 +199,8 @@ public class ImageController {
             imageService.deleteImage(imageId);
             return "redirect:/images";
         }
+        //Display all comments associated with this image
+        model.addAttribute("comments", imageService.getImageComments(Integer.toString(imageId), image.getTitle()));
         return "images/image";
     }
 
