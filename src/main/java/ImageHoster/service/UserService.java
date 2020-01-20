@@ -11,6 +11,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordValidator passwordValidator;
+
     //Call the registerUser() method in the UserRepository class to persist the user record in the database
     public void registerUser(User newUser) {
         userRepository.registerUser(newUser);
@@ -30,6 +33,16 @@ public class UserService {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Validate if password entered by the user contain at least 1 alphabet (a-z or A-Z), 1 number (0-9)
+     * and 1 special character (any character other than a-z, A-Z and 0-9)
+     * @param password
+     * @return
+     */
+    public boolean isPasswordStrong(String password) {
+        return passwordValidator.validate(password);
     }
 
 }
